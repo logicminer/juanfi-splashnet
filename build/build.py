@@ -57,7 +57,7 @@ FREE_FIRST_JS = """
 </script>
 """
 
-def patch_login(html: str, city: str, env_type: str, cluster: str, sdk_base: str, fmt: str = "interstitial", gate_seconds: int = 5, gate_selector: str = "#insertBtn", vendor: str = "") -> str:
+def patch_login(html: str, city: str, env_type: str, cluster: str, sdk_base: str, fmt: str = "interstitial", gate_seconds: int = 5, gate_selector: str = "#insertBtn", vendor: str = "", site: str = "") -> str:
     # RouterOS variables -> simulation-safe values. In production RouterOS
     # substitutes these itself; the SDK loader below assigns per-visitor
     # gateway ids in the sim.
@@ -95,8 +95,9 @@ def patch_login(html: str, city: str, env_type: str, cluster: str, sdk_base: str
 				<script>
 					(function () {{
 						var s = document.createElement("script");
-						s.src = "{sdk_base}/sdk/splash.js?v=9";
+						s.src = "{sdk_base}/sdk/splash.js";
 						s.async = true;
+						if ("{site}") s.setAttribute("data-site", "{site}");
 						s.setAttribute("data-city", "{city}");
 						s.setAttribute("data-type", "{env_type}");{cluster_attr}
 						s.setAttribute("data-gateway", "SIM-GW-" + Math.random().toString(36).slice(2, 8).toUpperCase());
@@ -153,6 +154,7 @@ def main() -> None:
     ap.add_argument("--gate-seconds", type=int, default=5, help="mandatory countdown before gated buttons unlock (0 = off)")
     ap.add_argument("--gate-selector", default="#insertBtn", help="CSS selector of buttons to gate behind the countdown")
     ap.add_argument("--vendor", default="", help="vendor ID (VND-XXXX) for attribution")
+    ap.add_argument("--site", default="", help="site key (SITE-XXXX) for server-driven config; overrides city/type/cluster/vendor at runtime")
     args = ap.parse_args()
 
     assert (args.src / "login.html").exists(), f"{args.src} does not look like a JuanFi template"
@@ -161,7 +163,7 @@ def main() -> None:
     shutil.copytree(args.src, args.dst)
 
     (args.dst / "login.html").write_text(
-        patch_login((args.dst / "login.html").read_text(), args.city, args.env_type, args.cluster, args.sdk_base, args.format, args.gate_seconds, args.gate_selector, args.vendor)
+        patch_login((args.dst / "login.html").read_text(), args.city, args.env_type, args.cluster, args.sdk_base, args.format, args.gate_seconds, args.gate_selector, args.vendor, args.site)
     )
     (args.dst / "assets/js/core.js").write_text(patch_core((args.dst / "assets/js/core.js").read_text()))
     (args.dst / "assets/js/config.js").write_text(patch_config((args.dst / "assets/js/config.js").read_text(), args.vendo))
