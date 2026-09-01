@@ -11,4 +11,4 @@ services:
     image: node:20-alpine
     command: node /app/server.js
     ports: ["8081:80"]
-    volumes: ["./vendo:/app:ro"]
+    volumes: ["./vendo:/app"]

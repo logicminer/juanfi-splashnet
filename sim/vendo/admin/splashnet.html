@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SplashNet — Vendo Status &amp; Income</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 16px; }
+    .card { background: #1e293b; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+    h1 { font-size: 18px; margin: 0 0 2px; } .sub { color: #94a3b8; font-size: 12px; margin-bottom: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+    .stat { background: #0f172a; border-radius: 10px; padding: 12px; text-align: center; }
+    .stat b { display: block; font-size: 22px; color: #22d3ee; margin-bottom: 2px; }
+    .stat span { font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+    .row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    input { flex: 1; min-width: 180px; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 8px; padding: 9px 12px; font-size: 13px; }
+    button { background: #0891b2; color: #fff; border: none; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .site { display: inline-block; background: #0f172a; border-radius: 999px; padding: 4px 12px; font-size: 12px; margin: 3px 4px 0 0; }
+    .ok { color: #4ade80; } .bad { color: #f87171; }
+    #msg { font-size: 12px; margin: 8px 0 0; color: #94a3b8; min-height: 16px; }
+    table { width: 100%; font-size: 12px; border-collapse: collapse; }
+    td, th { padding: 6px 4px; text-align: left; border-bottom: 1px solid #334155; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🌊 SplashNet — Vendo Status &amp; Income</h1>
+    <div class="sub">Advertiser-funded free minutes earned by your gateways. Retarget your portals from the SplashNet admin — nothing to re-flash here.</div>
+    <div class="row">
+      <input id="key" type="password" placeholder="Vendor API key (vnk_…)">
+      <button onclick="load()">Refresh</button>
+    </div>
+    <div id="msg"></div>
+  </div>
+
+  <div class="card" id="incomeCard" style="display:none">
+    <div class="sub" style="margin:0">Last 7 days</div>
+    <div class="grid">
+      <div class="stat"><b id="s-earned">—</b><span>Ad income ₱</span></div>
+      <div class="stat"><b id="s-eng">—</b><span>Engagements</span></div>
+      <div class="stat"><b id="s-min">—</b><span>Free mins given</span></div>
+      <div class="stat"><b id="s-hits">—</b><span>Ad serves</span></div>
+      <div class="stat"><b id="s-fill">—</b><span>Monetized %</span></div>
+    </div>
+  </div>
+
+  <div class="card" id="siteCard" style="display:none">
+    <div class="sub" style="margin:0">Your sites (server-driven — edit targeting in SplashNet admin)</div>
+    <div id="sites"></div>
+  </div>
+
+<script>
+  var API = "https://splash.nxph.site";
+  var saved = localStorage.getItem("splashnet_api_key");
+  if (saved) { document.getElementById("key").value = saved; load(); }
+
+  function load() {
+    var key = document.getElementById("key").value.trim();
+    var msg = document.getElementById("msg");
+    if (!key) { msg.textContent = "Enter your vendor API key (from SplashNet onboarding)."; return; }
+    msg.textContent = "Loading…";
+    fetch(API + "/api/v1/vendor/metrics?days=7&api_key=" + encodeURIComponent(key))
+      .then(function (r) { if (!r.ok) throw new Error(r.status === 401 ? "Invalid API key" : "SplashNet unreachable (" + r.status + ")"); return r.json(); })
+      .then(function (d) {
+        localStorage.setItem("splashnet_api_key", key);
+        msg.innerHTML = '<span class="ok">● Connected</span> — ' + d.vendor.companyName + " (" + d.vendor.id + ", " + d.vendor.status + ")";
+        document.getElementById("incomeCard").style.display = "";
+        document.getElementById("siteCard").style.display = "";
+        document.getElementById("s-earned").textContent = "₱" + d.income.earnedPhp;
+        document.getElementById("s-eng").textContent = d.income.engagements;
+        document.getElementById("s-min").textContent = d.income.minutesDelivered;
+        document.getElementById("s-hits").textContent = d.traffic.hits;
+        document.getElementById("s-fill").textContent = d.traffic.hits ? Math.round(d.traffic.monetizedHits / d.traffic.hits * 100) + "%" : "—";
+        var html = "<table><tr><th>Site</th><th>City</th><th>Env</th><th>Status</th></tr>";
+        (d.sites.length ? d.sites : []).forEach(function (s) {
+          html += "<tr><td>" + s.id + (s.label ? " · " + s.label : "") + "</td><td>" + s.city + "</td><td>" + s.envType + "</td><td>" + s.status + "</td></tr>";
+        });
+        if (!d.sites.length) html += "<tr><td colspan=4>No sites registered yet</td></tr>";
+        document.getElementById("sites").innerHTML = html + "</table>";
+      })
+      .catch(function (e) {
+        msg.innerHTML = '<span class="bad">● ' + e.message + "</span>";
+      });
+  }
+</script>
+</body>
+</html>
