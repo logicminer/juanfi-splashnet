@@ -135,6 +135,41 @@ Stored to S3-compatible store (MinIO local / R2 prod), URL on
 and referenced via `creative.videoUrl` — the 150 KB cap governs uploaded
 images, not bucket-loaded video.
 
+## Vendors (network operators) — [session]
+
+A **vendor** is a vendo/network operator registered with SplashNet — company
+profile, vendor ID (`VND-XXXX`), and an **API key** (shown exactly once at
+creation; authenticates their gateway connector). Vendor IDs attribute ad
+serves (`data-vendor` on the SDK embed / `vendor` query param on fetch) and
+media uploads (`vendorId` form field) — the cohesion model binding gateways,
+creatives, and traffic to the operator that owns them.
+
+### GET `/api/v1/vendors` — [VIEWER] · POST — [OPERATOR]
+POST body: `{companyName (required), contactName, contactEmail, contactPhone,
+city, clusterIds, gatewayCount, status: PENDING|ACTIVE|SUSPENDED, notes}` →
+201 `{vendor}` **including `apiKey` (only time it is ever returned)**.
+
+### PUT|DELETE `/api/v1/vendors/{id}` — [OPERATOR]
+Partial updates (profile, status, gateway count). Suspended vendors'
+connectors stop authenticating (Module C checks `status='ACTIVE'`).
+
+## Metrics — [session, role: VIEWER]
+
+### GET `/api/v1/metrics?days=7` (1–90)
+Campaign performance + vendor rollup:
+```json
+{
+  "totals": { "serves": 68, "fallbackServes": 7, "fillRate": 90,
+              "rewardsGranted": 7, "redeemptions": 1 },
+  "campaigns": [ { "id": "cmp_…", "name": "…", "status": "ACTIVE",
+                   "serves": 20, "engagements": {"watch":2,"click":0},
+                   "redemptions": 1 } ],
+  "vendors": [ { "vendorId": "VND-3ADCCA", "hits": 4, "monetizedHits": 4 } ]
+}
+```
+Surfaces in the admin Analytics page and is the billable basis for
+engagement CPM (watch/click) and vendor revenue share.
+
 ## Analytics — [session, role: VIEWER]
 
 ### GET `/api/v1/analytics?limit=50` (max 500)

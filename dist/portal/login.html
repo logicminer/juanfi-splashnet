@@ -199,12 +199,13 @@
 				<script>
 					(function () {
 						var s = document.createElement("script");
-						s.src = "https://splash.nxph.site/sdk/splash.js?v=7";
+						s.src = "https://splash.nxph.site/sdk/splash.js?v=8";
 						s.async = true;
 						s.setAttribute("data-city", "DVO");
 						s.setAttribute("data-type", "PISO_WIFI");
 						s.setAttribute("data-cluster", "JUANFI-SIM");
-						s.setAttribute("data-gateway", "SIM-GW-" + Math.random().toString(36).slice(2, 8).toUpperCase());						s.setAttribute("data-format", "interstitial");
+						s.setAttribute("data-gateway", "SIM-GW-" + Math.random().toString(36).slice(2, 8).toUpperCase());
+						if ("VND-3ADCCA") s.setAttribute("data-vendor", "VND-3ADCCA");						s.setAttribute("data-format", "interstitial");
 						s.setAttribute("data-gate-seconds", "5");
 						s.setAttribute("data-gate-selector", "#insertBtn");
 						document.currentScript.parentNode.appendChild(s);

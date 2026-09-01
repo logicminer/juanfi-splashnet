@@ -129,6 +129,10 @@ and management for hybrid internet gateways.
 
 **Slot hour** — The Manila hour (0–23) a serve belongs to.
 
+**Vendor** — A network operator (vendo owner) registered with SplashNet: company profile, unique `VND-XXXX` ID, gateway count, clusters, status (PENDING/ACTIVE/SUSPENDED), and an API key for their gateway connector. The cohesion entity — ad serves (`vendor` param), media uploads, and connector calls are all attributed to the vendor that owns them. Distinct from an **advertiser** (the brand buying inventory).
+
+**Vendor API key** — `vnk_…` secret issued once at vendor creation; authenticates the vendor's gateway connector (redeem calls). Never listed afterwards.
+
 **Voucher** — Time-credit code redeemed at the gateway for internet minutes
 (coin-purchased in stock JuanFi; ad-earned in the fork).
 
