@@ -1,149 +1,214 @@
-# SplashNet Glossary
+# SplashNet Glossary — Definitive
 
-Terms used across the BRD, specs, API, and operations. Alphabetical.
+The single source of truth for terms. If a term is used anywhere (BRD, specs,
+API, code, ops) it is defined here. Organized by category so related
+assumptions are visible together. When in doubt: **check the ownership column
+thinking — "who owns this, where does it live?"**
 
-**Ad Slot (hourly slot)** — One bookable hour of inventory for a targeting
-dimension set, e.g. `DVO × PISO_WIFI × 2026-09-01 14:00–15:00`. The atomic
-unit sold to advertisers.
+---
 
-**AdHit** — One logged serve of `/api/v1/ad/fetch`: city, environment,
-cluster, gateway, slot hour, campaign (or fallback). Raw analytics stream;
-Module B's future input.
+## 1. People & entities (who's who)
 
-**Advertiser** — Brand buying inventory. Owns campaigns, creatives, and a deployment footprint (default cities) that pre-selects in campaign targeting.
+**User (subscriber)** — The person on a phone/laptop behind a gateway, gated
+pre-authentication. Sees the portal. Has no account anywhere; identified
+only by device (MAC/gateway key).
 
-**Area** — Registry drill-down under a city (`DVO-AGDAO`, `CEB-MANDAUE`): districts/zones an advertiser can target beyond city level. Embeds declare their area (`data-area`); area campaigns serve only matching requests. Areas share the cache targeting slot with clusters under the `area:` namespace.
+**Network operator / Vendor** — The piso-wifi business owner. Owns the
+gateways (routers) and vendos (coin boxes). Registered in SplashNet as a
+**vendor** (`VND-XXXX`) with a company profile and API key. Earns a share of
+advertiser spend on their gateways. *Not* the advertiser.
 
-**Deployment footprint** — An advertiser's default set of cities; the campaign form pre-selects them (★) so new campaigns start from the advertiser's usual geography.
+**Advertiser** — The brand buying ad inventory. Owns campaigns, creatives,
+budgets, and a deployment footprint. Registered separately from vendors.
+*Never* owns gateways.
 
-**Asia/Manila time (UTC+8)** — The platform's canonical wall-clock for all
-scheduling. PH has no DST, so a fixed +8 offset is exact. Server stores UTC;
-every comparison normalizes to Manila first.
+**SplashNet (the platform / us)** — The ad server + admin + CDN. Sells
+inventory on behalf of the network, bills advertisers, pays operators.
 
-**Campaign** — A bookable ad unit: flights (date range), hourly slots,
-targeting dimensions, creative, optional `rewardMinutes`. Statuses: DRAFT →
-ACTIVE → PAUSED/COMPLETED.
+**Client** (BRD context) — Jean Alistair Clyde S. Chiong, the purchaser of
+Phase 1 development. Distinct from "user".
 
-**Captive portal** — The pre-auth web page a gateway forces unauthenticated
-devices onto (JuanFi's `login.html` is one). The user has no internet here —
-only walled-garden hosts are reachable.
+## 2. Surfaces (which screen is which — the classic confusion)
 
-**City Code** — Three-letter market code (`DVO`, `CEB`). Targeting dimension.
+| Surface | Runs on | URL example | Audience |
+|---|---|---|---|
+| **Portal (captive portal)** | Gateway router (MikroTik hotspot files) | `http://<gateway-ip>/login.html` (demo: `demo.nxph.site`) | End users |
+| **JuanFi vendo admin** | Vendo coin box (NodeMCU SPIFFS) | `http://<vendo-ip>/admin/` (sim: `localhost:8081/admin/`) | Operator |
+| **SplashNet admin** | SplashNet server | `splash.nxph.site` | Platform + operators with roles |
+| **JuanFi Manager** | Upstream commercial SaaS (NOT ours, not deployed here) | — | Upstream product |
 
-**Cluster** — Operator-defined zone of gateways (e.g. one purok or building).
-Optional third targeting dimension.
+**Rule of thumb:** if it's about coins, MikroTik credentials, or voucher
+generation → vendo admin. If it's about campaigns, budgets, sites, vendors,
+metrics → SplashNet admin. If it's about getting internet → portal.
 
-**Connector** — Software bridging SplashNet and the gateway: redeems reward
-vouchers and provisions hotspot sessions (on-router script or NodeMCU vendo
-firmware extension). Commercially Module C.
+## 3. Hardware & deployment units
 
-**Creative** — The ad payload (headline, body, CTA label/URL, colors,
-optional `imageUrl`/`videoUrl`). Images: WebP ≤ 150 KB via CDN; video served
-from the asset bucket.
+**Gateway** — The MikroTik router: enforces pre-auth gating, serves the
+portal template from flash, applies the walled garden. Identified by MAC/ID
+(`data-gateway`, `$(mac)`).
 
-**Deterministic Time-Slot Model** — BRD core concept: inventory is sold as
-explicit hourly blocks with guaranteed, zero-overlap delivery (versus
-probabilistic auctions).
+**Vendo** — The NodeMCU/ESP32 coin-acceptor box. Serves its admin from
+SPIFFS and the coin API (`/topUp`, `/checkCoin`, `/getRates`, …) the portal
+calls. Simulated in our Docker stack (`sim/vendo`, `vendo.nxph.site`).
 
-**Edge cache (write-through)** — Redis fronting the ad API. Reads on the hot
-path touch only the cache (one MGET over 8 specific→wildcard key candidates);
-writes update the source of truth first, then the cache, transactionally.
+**Site** — A registered gateway deployment: the `SITE-XXXX` record binding
+one portal to its targeting (city/type/cluster/area/vendor), format, and
+gate settings. **Server-driven**: editing the site row retargets the portal;
+nothing is re-uploaded.
 
-**Engagement** — A completed ad interaction: `WATCH` (video viewed ≥ 8 s) or
-`CLICK` (CTA click-through). Billable, redeemable for reward minutes.
+**Walled garden** — The gateway firewall's pre-auth allowlist. Must contain
+`splash.nxph.site` + `cdn.nxph.site` (BRD GUARD-02; #1 deployment failure
+mode). Matches via the router's DNS cache, not SNI.
 
-**Fail-open** — Architecture rule: any ad-system failure/slowness (150 ms
-budget client-side) hides the ad and lets the portal continue. The user is
-never blocked from internet access by ad infrastructure.
+**Cluster** — Operator-defined zone of gateways (a purok, a building).
+Targeting dimension.
 
-**Fallback creative** — Agency-branded creative served for unbooked slots or
-errors. Never reward-eligible, never billed.
+## 4. Geography
 
-**Flight** — A campaign's Manila date range (`flightStart`–`flightEnd`).
+**City Code** — Three-letter market (`DVO`, `CEB`, `MNL`). Targeting
+dimension; declared by embed/site config; **country** confirmed per-request
+via Cloudflare (`cf-ipcountry`), city itself is operator-declared (Module C
+adds IP pinning).
 
-**Free-minutes economy** — The commercial model tying rewards to advertiser spend: campaigns carry a budget (₱) and cost per engagement (₱). Every watch/click grant debits the budget; when it can't fund another engagement the campaign stops granting free minutes and portals flip to paid (coin) mode. Metrics expose the ledger (spent, remaining, minutes delivered, effective ₱/min) for advertiser invoicing.
+**Area** — Registry drill-down under a city (`DVO-AGDAO`): districts. Embeds
+declare `data-area`; area campaigns serve only matching requests.
 
-**Full Splash Ads** — Product name for the ad-gated access model: watch/click
-an ad → free minutes; coins remain the paid tier. Spec: SPLASH-ADS-SPEC.md.
+**Deployment footprint** — An advertiser's default cities; pre-selected (★)
+in campaign forms.
 
-**Gateway** — The router+portal serving a user. Identified by MAC/ID
-(`data-gateway` / `$(mac)`). Key for targeting, quotas, and fraud signals.
+**Location signals** — Network truth per serve: client IP, country, Cloudflare
+edge **colo**. Declared-vs-network mismatches are flagged (`mismatchHits`).
 
-**Interstitial (popup ad)** — Full-screen ad format (SDK `data-format="interstitial"`): image or video overlay on the portal with an always-present skip button and a 30-second hard auto-close — the user is never trapped. The juanfi-splashnet fork defaults to interstitial on the login page. Creatives stream from the CDN and never occupy router flash storage (hAP-class devices have as little as 16 MB with no SD slot).
+## 5. Ads & inventory
 
-**Coin gate (gate interstitial)** — Mandatory countdown interstitial in front of a portal action (default: INSERT COIN): the button is disabled while a 5→1 countdown runs over an image ad, then unlocks (event `splashnet:gate-complete`). Guarantees advertiser exposure before the purchase action. Fail-safe: with no ad loaded the countdown still runs and unlocks — the paid path is never permanently blocked.
+**Campaign** — The bookable unit: advertiser, flights (date range), hourly
+**slots**, targeting (city/env/cluster/area), creative, `rewardMinutes`,
+`budgetPhp`, `costPerEngagementPhp`. Statuses DRAFT/ACTIVE/PAUSED/COMPLETED.
 
-**Hit stream** — Append-only `ad_hits` ledger of all serves. Feeds analytics
-now, Module B later.
+**Deterministic Time-Slot Model** — Inventory sold as explicit hourly blocks
+with guaranteed zero-overlap delivery (vs probabilistic auctions). The BRD's
+core concept.
 
-**Location signals / location trust** — How we know where a request really
-came from. Declared city/cluster come from the embed config (operator-entered,
-unverified). Network truth comes from Cloudflare per request: `cf-connecting-ip`
-(client IP), `cf-ipcountry` (country, e.g. `PH`), and the edge **colo** code
-from `cf-ray` (e.g. `CEB`, `MNL`, `HKG` — coarse region cross-check). Hits
-declaring a PH city but arriving from foreign networks are flagged as
-`mismatchHits` — misconfiguration or spoofing, Module B input. Vendo/site
-location is pinned at registration (Module C).
+**Slot (hourly slot)** — One bookable hour for a targeting set. **Slot
+hour** — the Manila hour (0–23) a serve belongs to.
 
-**JuanFi** — Open-source piso-wifi system (MikroTik hotspot template +
-NodeMCU vendo firmware) by ivanalayan15. Our fork (`juanfi-splashnet`) adds
-the SplashNet ad slot and watch-to-connect.
+**Overlap Blocker (pre-commit)** — SQL interval-intersection + row-lock
+rejecting ACTIVE bookings colliding on targeting × hour (HTTP 409).
 
-**MikroTik** — RouterOS hardware most piso-wifi operators run; serves the
-captive portal template and enforces pre-auth gating.
+**Creative** — The ad payload: headline, body, CTA, colors, optional
+`imageUrl` (WebP ≤150 KB) / `videoUrl` (mp4 from the CDN bucket).
 
-**Module A / B / C** — BRD Phase 2 add-ons: A) iOS/Safari tracking bypass
-(₱45k) · B) anti-fraud data cleansing (₱40k) · C) JuanFi portal connector
-(₱50k).
+**Fallback creative** — Agency-branded creative for unbooked slots/errors.
+Never reward-eligible, never billed.
 
-**Network Environment** — `PISO_WIFI` (prepaid, high-frequency) vs
-`POSTPAID` (residential/commercial). Targeting dimension.
+**Interstitial (popup ad)** — Full-screen ad format with skip and 30 s hard
+auto-close. **Coin gate** — mandatory 5→1 countdown interstitial gating a
+portal button (default `#insertBtn`). **Inline** — container-embedded format.
 
-**NodeMCU / vendo** — ESP8266/ESP32 coin-acceptor box. Exposes the HTTP API
-the portal calls (`/topUp`, `/checkCoin`, `/getRates`, …). Simulated in our
-Docker stack by `sim/vendo`.
+**Fail-open** — Architecture rule: any ad-system failure/slowness hides the
+ad and never blocks internet access (150 ms client budget; gate countdowns
+still unlock on schedule).
 
-**Overlap Blocker (pre-commit)** — SQL interval-intersection query + row lock
-(`FOR UPDATE`) rejecting any ACTIVE booking that collides on targeting
-dimensions × hour range on the same Manila date. HTTP 409.
+**splash.js (SDK)** — Zero-dependency embed script served self-updating from
+`/sdk/splash.js` (route handler, no-store). Attributes: `data-site` (see
+Sites) or `data-city/type/cluster/area/vendor/gateway/format/gate-*`.
+Events: `splashnet:reward`, `splashnet:paid-mode`, `splashnet:gate-complete`,
+`splashnet:show`.
 
-**Piso WiFi** — PH coin-operated prepaid Wi-Fi business model (₱-per-time).
+**Full Splash Ads** — The product model: watch/click an ad → free minutes;
+coins remain the paid tier.
 
-**RBAC roles** — ADMIN (everything + users) > OPERATOR (campaigns, scheduler,
-assets) > VIEWER (read-only dashboards).
+**Watch-to-connect** — The flow: engage with ad → reward voucher → gateway
+connects the user.
+
+## 6. Money (the free-minutes economy)
+
+**Budget (`budgetPhp`)** — Advertiser pesos funding a campaign's rewards.
+NULL = unlimited. Every engagement debits it; at exhaustion the campaign
+stops granting free minutes and portals flip to paid mode.
+
+**Cost per engagement (`costPerEngagementPhp`)** — Pesos the advertiser pays
+per completed WATCH/CLICK (default ₱2). Recorded per grant in `ad_rewards`
+(`cost_php`).
+
+**Engagement** — Completed ad interaction: `WATCH` (video ≥ 8 s) or `CLICK`
+(CTA click-through). Billable, redeemable for reward minutes.
 
 **Reward token** — HMAC-signed, device-bound, single-use (Redis NX), 10-min
-TTL token issued with a reward-eligible ad payload; redeemed at
-`/api/v1/ad/reward`.
+TTL token issued with a reward-eligible ad payload.
 
-**Reward voucher** — Code (`SN` + 8 hex) returned on reward redemption;
-converted to gateway minutes at `/api/v1/ad/redeem` (connector contract).
+**Reward voucher** — `SN`+8-hex code returned on redemption; burned
+idempotently at the gateway via `/api/v1/ad/redeem`.
 
-**rewardMinutes** — Campaign opt-in field (0–60): free minutes a gated user
-earns per engagement. Default 3 engagements/device/24 h.
+**Vendor income** — `Σ cost_php` of engagements on a vendor's gateways
+(rewards carry `vendor_id`). Exposed via `/api/v1/vendor/metrics` (API-key
+auth) and the vendo admin panel.
 
-**S2S (server-to-server)** — Gateway firmware calling the ad API directly
-(POST JSON) instead of browser SDK rendering.
+**Vendor API key** — `vnk_…` secret issued exactly once at vendor creation;
+authenticates the vendo admin surface (and later, gateway connectors).
 
-**splash.js (SDK)** — Zero-dependency embed script served from
-`/sdk/splash.js`. Auto-configured via `data-*` attributes; 150 ms fail-open
-timeout with background retries; renders creatives, drives engagement, fires
-`splashnet:reward`.
+## 7. Registry entities & cohesion
 
-**SplashNet** — This platform: centralized, presentation-agnostic ad delivery
-and management for hybrid internet gateways.
+**Vendor registry** — Company profiles + status (PENDING/ACTIVE/SUSPENDED) +
+API keys. **Sites registry** — server-driven portal configs per gateway
+deployment. **Areas registry** — the geo dictionary. **Advertisers** — brand
+profiles + footprints. Cohesion = every serve, upload, and reward is
+attributed to one of these identities.
 
-**Site key** — `SITE-XXXX` registry record + embed attribute powering server-driven portal config: the fork ships with only the key; city/type/cluster/area/vendor/format/gate resolve at runtime (`/api/v1/sdk/config`). Retargeting a gateway is a server-side row edit — no re-upload, no vendo re-flash ("install once").
+## 8. Ops & deployment terms
 
-**Slot hour** — The Manila hour (0–23) a serve belongs to.
+**"Install once, never re-flash"** — The cohesion contract: after initial
+install (portal template upload + walled garden + optional vendo admin page
+upload), **all changes are server-side** (retargeting, SDK updates, campaign
+changes, format/gate changes). Nothing on the gateway or vendo changes.
 
-**Vendor** — A network operator (vendo owner) registered with SplashNet: company profile, unique `VND-XXXX` ID, gateway count, clusters, status (PENDING/ACTIVE/SUSPENDED), and an API key for their gateway connector. The cohesion entity — ad serves (`vendor` param), media uploads, and connector calls are all attributed to the vendor that owns them. Distinct from an **advertiser** (the brand buying inventory).
+**Self-updating SDK** — `splash.js` served with revalidate-always caching so
+server-side updates reach portals without operator action.
 
-**Vendor API key** — `vnk_…` secret issued once at vendor creation; authenticates the vendor's gateway connector (redeem calls). Never listed afterwards.
+**Connector** — Software bridging SplashNet and a gateway for voucher
+redemption → hotspot sessions (on-router script or vendo firmware extension;
+Module C commercializes this).
 
-**Voucher** — Time-credit code redeemed at the gateway for internet minutes
-(coin-purchased in stock JuanFi; ad-earned in the fork).
+**Hit stream (`ad_hits`)** — Append-only ledger of serves: targeting params,
+gateway, vendor attribution, geo signals. **Reward ledger (`ad_rewards`)** —
+grants with cost, vendor, burn state.
 
-**Walled garden** — The gateway firewall's pre-auth allowlist. Operators must
-whitelist `splash.nxph.site` + `cdn.nxph.site` (BRD GUARD-02; the #1
-deployment failure mode).
+**RBAC** — SplashNet admin roles: ADMIN > OPERATOR > VIEWER.
+
+**Modules A/B/C** — BRD Phase 2 add-ons: A iOS/Safari tracking bypass (₱45k),
+B anti-fraud cleansing (₱40k), C JuanFi connector (₱50k).
+
+## 9. Domains & environments
+
+| Domain | Purpose |
+|---|---|
+| `splash.nxph.site` | SplashNet app + admin + API + SDK (Cloudflare Tunnel → local stack) |
+| `cdn.nxph.site` | Creative assets (MinIO/R2-backed) |
+| `demo.nxph.site` | JuanFi fork portal demo (sim portal container) |
+| `vendo.nxph.site` | Mock coin-slot API (sim vendo container) |
+| `localhost:8888` / `:8081` | Local sim: portal / vendo(+admin) |
+| BRD's `splashnet.ph` / `nextph.me` | Placeholders; production runs on `nxph.site` |
+
+**Sim (`sim/`)** — The Docker simulation: real JuanFi template patched by
+the fork build, mock vendo with the real upstream admin UI, nginx portal.
+
+**Fork (`juanfi-splashnet`)** — github.com/logicminer/juanfi-splashnet: the
+build pipeline (`build/build.py`), reference dist, sim, docs. Apache-2.0
+inherited from upstream JuanFi (© Ivan Alayan; modifications in NOTICE).
+
+---
+
+## Common false assumptions — defused
+
+| Assumption | Reality |
+|---|---|
+| "The admin" (singular) | Three surfaces: vendo admin (coin box), SplashNet admin (server), portal (user). See §2. |
+| The SplashNet income page stores data | It's a thin shell; **all** data comes from the SplashNet server via API key. |
+| Changing targeting needs a re-upload/re-flash | Since site keys: **never** — it's a server-side row edit. |
+| Updating the SDK means re-uploading portals | No — self-updating (no-store route). |
+| Advertiser = operator | Advertisers buy inventory; vendors (operators) own gateways and *earn*. |
+| The video/image ad lives on the router | Never — creatives stream from `cdn.nxph.site`; router flash only holds the ~2 KB-added template. |
+| "Watch 5 min free" costs the operator | No — every granted minute is funded by advertiser budget; when budget ends, portals flip to coin mode. |
+| The sim is production | The sim is Docker on the dev machine; production is the `nxph.site` domains. `Connected (simulated)` on the portal marks the difference. |
+| JuanFi Manager features are included | JuanFi Manager is upstream's separate commercial SaaS — not ours, not deployed. |
+| `vendo.nxph.site` is a real vendo | It's the **mock** coin API for the simulation. |
