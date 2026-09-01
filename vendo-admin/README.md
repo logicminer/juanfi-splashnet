@@ -1,21 +1,12 @@
-# Vendo admin overlay — SplashNet inside JuanFi's own admin
+# Vendo admin overlay — OPTIONAL (read FIRMWARE-POLICY.md first)
 
-`splashnet.html` drops into the NodeMCU vendo's SPIFFS `data/admin/`
-folder (one-time upload alongside `system-config.html` /
-`voucher-generate.html`). After that it is fully self-updating: all data is
-fetched live from the SplashNet server (`/api/v1/vendor/metrics`), so the
-page never needs to be re-uploaded.
+**The supported path is the hosted page: https://splash.nxph.site/vendor**
+(bookmark / add-to-home-screen). Identical data, and your vendo hardware is
+never touched. The fork ships zero binaries and never requires flashing.
 
-What the operator sees on their coin box at `http://<vendo-ip>/admin/splashnet.html`:
-
-- Connection status + vendor identity (VND-XXXX)
-- **Advertiser-funded income** (₱ earned from watch-to-connect engagements)
-- Engagements, free minutes delivered, ad serves, monetized %
-- Their registered sites (retargetable from the SplashNet admin — no re-flash)
-
-Setup: paste the vendor API key once (issued at vendor registration; shown
-exactly once). It is stored in the browser's localStorage.
-
-Note: JuanFi's stock admin has no index page (operators navigate directly to
-each file). Optionally add a link to `splashnet.html` in
-`system-config.html`, or ship `index.html` from this folder.
+This folder exists because the JuanFi vendo admin (NodeMCU SPIFFS) is where
+operators already look. If — and only if — an owner accepts SPIFFS re-image
+risk themselves, `splashnet.html` is a single static file for `data/admin/`.
+Follow the safety protocol in FIRMWARE-POLICY.md: BACKUP config → image from
+*their* extracted config (never stock defaults) → RESTORE → verify coin
+redemption before leaving the site.

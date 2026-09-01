@@ -29,8 +29,8 @@ talks to what, and which change requires touching what.**
 └────────┘ └────────┘     │  ├─ hotspot/  ← fork template (installed ONCE)│
                           │  │    └─ splash.js ← served BY SplashNet     │
                           │  └─ walled garden (2 hostnames, ONCE)        │
-                          │ Vendo box (NodeMCU)                          │
-                          │  └─ data/admin/splashnet.html (ONCE, optional)│
+                          │ Vendo box (NodeMCU) — NEVER TOUCHED by us      │
+                          │  └─ (optional overlay: see FIRMWARE-POLICY)   │
                           └─────────────────────────────────────────────┘
 ```
 
@@ -72,7 +72,8 @@ serve — no storage anywhere downstream.
 | Daily device reward cap | deploy (constant) | — | No | No | none |
 | Server infrastructure (DB/Redis/tunnel) | deploy | — | No | No | none |
 | Fork template changes (UI layout, free-first) | — | — | **Yes — rebuild + upload** | No | one file copy |
-| Vendo admin page update | — | — | No | SPIFFS upload (rare; page is thin) | optional |
+| Vendor income surface | deploy (hosted page) | — | No | **No — never** | none (bookmark splash.nxph.site/vendor) |
+| Vendo admin page update (optional overlay) | — | — | No | SPIFFS re-image at owner's risk (FIRMWARE-POLICY.md) | BACKUP→flash→RESTORE protocol |
 | New gateway deployment | — | register site + vendor | initial upload (ONCE) | initial upload (ONCE) | walled garden cmds |
 | Reward voucher → real hotspot session | Module C connector | — | No | firmware extension (Module C scope) | Module C install |
 

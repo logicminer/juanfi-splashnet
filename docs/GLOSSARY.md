@@ -212,3 +212,4 @@ inherited from upstream JuanFi (© Ivan Alayan; modifications in NOTICE).
 | The sim is production | The sim is Docker on the dev machine; production is the `nxph.site` domains. `Connected (simulated)` on the portal marks the difference. |
 | JuanFi Manager features are included | JuanFi Manager is upstream's separate commercial SaaS — not ours, not deployed. |
 | `vendo.nxph.site` is a real vendo | It's the **mock** coin API for the simulation. |
+| The fork ships vendo firmware/binaries | **Never.** Zero binaries, zero firmware mods (FIRMWARE-POLICY.md). The operator income surface is the hosted page `splash.nxph.site/vendor` — zero vendo contact. The SPIFFS overlay file is optional and owner's-risk. |
