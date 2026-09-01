@@ -65,15 +65,25 @@ Responses:
   `rate limited` (429) · `temporarily unavailable` (503, fail-closed on
   reward errors — deny, never block)
 
-### POST `/api/v1/ad/redeem` — [public, planned S1 — connector contract]
-Convert a reward voucher into gateway minutes. Idempotent: first call burns
-the voucher and returns minutes; subsequent calls with a burned voucher
-return the original grant (idempotency key = voucher).
+### POST `/api/v1/ad/redeem` — [public, live]
+Gateway redemption contract (connector). Convert a reward voucher into
+minutes to provision on the hotspot. Idempotent per gateway: first call burns
+the voucher; the same gateway retrying gets the identical grant; a different
+gateway is refused.
 
-Body: `{ "voucher": "SN4F86B9E4", "mac": "AA:BB:CC:DD:EE:FF" }`
+Body: `{ "voucher": "SN4F86B9E4", "mac": "AA:BB:CC:DD:EE:FF" }` (also accepts
+`gateway` instead of `mac`; voucher format `SN` + 8 hex)
+
 200 `{"status":"GRANTED","minutes":5,"engagement":"WATCH","campaignId":"cmp_xxx"}`
-· `{"status":"UNKNOWN_VOUCHER"}` (404) · `{"status":"ALREADY_BURNED_BY_OTHER_GATEWAY"}` (409)
-Connector then provisions the hotspot session (MikroTik API / RADIUS / vendo).
+· 404 `{"status":"UNKNOWN_VOUCHER"}` · 409 `{"status":"ALREADY_BURNED_BY_OTHER_GATEWAY"}`
+· 429 rate limited (30/min/IP). Connector then provisions the hotspot session
+(MikroTik API / RADIUS / vendo bridge).
+
+### SDK embed attributes
+| Attribute | Values |
+|---|---|
+| `data-format` | `inline` (container) \| `interstitial` (full-screen popup with skip; 30 s hard auto-close) — fork default is interstitial |
+| `data-city` / `data-type` / `data-cluster` / `data-gateway` | targeting + device identity |
 
 ---
 

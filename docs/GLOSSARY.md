@@ -63,6 +63,8 @@ an ad → free minutes; coins remain the paid tier. Spec: SPLASH-ADS-SPEC.md.
 **Gateway** — The router+portal serving a user. Identified by MAC/ID
 (`data-gateway` / `$(mac)`). Key for targeting, quotas, and fraud signals.
 
+**Interstitial (popup ad)** — Full-screen ad format (SDK `data-format="interstitial"`): image or video overlay on the portal with an always-present skip button and a 30-second hard auto-close — the user is never trapped. The juanfi-splashnet fork defaults to interstitial on the login page. Creatives stream from the CDN and never occupy router flash storage (hAP-class devices have as little as 16 MB with no SD slot).
+
 **Hit stream** — Append-only `ad_hits` ledger of all serves. Feeds analytics
 now, Module B later.
 
