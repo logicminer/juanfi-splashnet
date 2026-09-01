@@ -64,8 +64,16 @@ Responses:
 - 200 `{"status":"GRANTED","minutes":5,"voucher":"SN4F86B9E4"}`
 - `DENIED` + reason: `invalid or expired token` (403) · `token already
   redeemed` (409) · `daily device limit reached` (device cap 3/24 h) ·
+  **`budget exhausted`** (advertiser budget can't fund another engagement —
+  SDK flips the portal to paid/coin mode via `splashnet:paid-mode`) ·
   `rate limited` (429) · `temporarily unavailable` (503, fail-closed on
   reward errors — deny, never block)
+
+**Free-minutes economy.** Campaigns carry `budgetPhp` (null = unlimited) and
+`costPerEngagementPhp` (default ₱2). Each grant debits the budget; when the
+remainder can't fund one more engagement, rewards stop. Metrics report the
+ledger per campaign (spent / remaining / minutes delivered / effective ₱ per
+minute) — the advertiser invoice basis.
 
 ### POST `/api/v1/ad/redeem` — [public, live]
 Gateway redemption contract (connector). Convert a reward voucher into
@@ -85,6 +93,9 @@ Body: `{ "voucher": "SN4F86B9E4", "mac": "AA:BB:CC:DD:EE:FF" }` (also accepts
 | Attribute | Values |
 |---|---|
 | `data-format` | `inline` (container) \| `interstitial` (full-screen popup with skip; 30 s hard auto-close) — fork default is interstitial |
+| `data-vendor` / `data-area` | `VND-XXXX` attribution · registry area code (`DVO-AGDAO`) |
+| `splashnet:show` (event) | Portals dispatch to show a fresh interstitial on demand (the fork's WATCH AD button) |
+| `splashnet:paid-mode` (event) | SDK fires when free minutes are unavailable (budget exhausted / device cap) — portals reveal the coin slot |
 | `data-gate-seconds` | Mandatory countdown (e.g. `5`) before gated portal buttons unlock; countdown shows 5→1 over the ad. Fork default gates `#insertBtn` (INSERT COIN) for 5 s |
 | `data-gate-selector` | CSS selector of the element(s) to gate (default `#insertBtn`) |
 | `data-city` / `data-type` / `data-cluster` / `data-gateway` | targeting + device identity |

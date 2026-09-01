@@ -61,6 +61,8 @@ errors. Never reward-eligible, never billed.
 
 **Flight** — A campaign's Manila date range (`flightStart`–`flightEnd`).
 
+**Free-minutes economy** — The commercial model tying rewards to advertiser spend: campaigns carry a budget (₱) and cost per engagement (₱). Every watch/click grant debits the budget; when it can't fund another engagement the campaign stops granting free minutes and portals flip to paid (coin) mode. Metrics expose the ledger (spent, remaining, minutes delivered, effective ₱/min) for advertiser invoicing.
+
 **Full Splash Ads** — Product name for the ad-gated access model: watch/click
 an ad → free minutes; coins remain the paid tier. Spec: SPLASH-ADS-SPEC.md.
 

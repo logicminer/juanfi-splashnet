@@ -13,6 +13,50 @@ templates and resolve any assertion failures as upstream drift.
 import argparse, pathlib, re, shutil, sys
 
 
+FREE_FIRST_JS = """
+<script>
+  (function () {
+    function applyFreeFirst() {
+      var insert = document.getElementById("insertBtn");
+      var promo = document.getElementById("promoRateBtn");
+      if (promo) promo.style.display = "none";
+      if (!insert || insert.dataset.splashnetWrapped) return;
+      insert.dataset.splashnetWrapped = "1";
+      var watch = document.createElement("button");
+      watch.type = "button";
+      watch.id = "splashnet-watch-btn";
+      watch.className = "btn btn-success btn-block";
+      watch.style.cssText = "font-size:1.05rem;padding:14px;color:#fff;text-shadow:0 1px 2px #000";
+      watch.textContent = "\\u25B6 WATCH AD \\u2014 GET FREE MINUTES";
+      watch.addEventListener("click", function () {
+        document.dispatchEvent(new Event("splashnet:show"));
+      });
+      insert.parentNode.insertBefore(watch, insert);
+      var paid = document.createElement("button");
+      paid.type = "button";
+      paid.className = "btn btn-outline-secondary btn-block btn-sm";
+      paid.style.marginTop = "10px";
+      paid.textContent = "No free time? Insert coin \\u2192";
+      paid.addEventListener("click", function () { insert.style.display = "block"; paid.style.display = "none"; });
+      insert.style.display = "none";
+      insert.parentNode.insertBefore(paid, insert.nextSibling);
+    }
+    function paidMode() {
+      var watch = document.getElementById("splashnet-watch-btn");
+      if (watch) watch.textContent = "\\u2715 Free minutes sold out \\u2014 insert coin";
+      var insert = document.getElementById("insertBtn");
+      var paid = insert && insert.nextElementSibling;
+      if (insert) insert.style.display = "block";
+      if (paid && paid.textContent.indexOf("Insert coin") >= 0) paid.style.display = "none";
+    }
+    document.addEventListener("splashnet:paid-mode", paidMode);
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", applyFreeFirst);
+    } else { applyFreeFirst(); }
+  })();
+</script>
+"""
+
 def patch_login(html: str, city: str, env_type: str, cluster: str, sdk_base: str, fmt: str = "interstitial", gate_seconds: int = 5, gate_selector: str = "#insertBtn", vendor: str = "") -> str:
     # RouterOS variables -> simulation-safe values. In production RouterOS
     # substitutes these itself; the SDK loader below assigns per-visitor
@@ -51,7 +95,7 @@ def patch_login(html: str, city: str, env_type: str, cluster: str, sdk_base: str
 				<script>
 					(function () {{
 						var s = document.createElement("script");
-						s.src = "{sdk_base}/sdk/splash.js?v=8";
+						s.src = "{sdk_base}/sdk/splash.js?v=9";
 						s.async = true;
 						s.setAttribute("data-city", "{city}");
 						s.setAttribute("data-type", "{env_type}");{cluster_attr}
@@ -75,6 +119,7 @@ def patch_login(html: str, city: str, env_type: str, cluster: str, sdk_base: str
 						setTimeout(function () {{ doLogin(); }}, 1200);
 					}});
 				</script>
+				{FREE_FIRST_JS}
 """
     marker = '<span class="status-disconnected">'
     assert marker in html, "login.html: injection marker missing (upstream drift?)"
