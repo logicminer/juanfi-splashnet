@@ -100,7 +100,7 @@ Body: `{ "voucher": "SN4F86B9E4", "mac": "AA:BB:CC:DD:EE:FF" }` (also accepts
 | `data-gate-selector` | CSS selector of the element(s) to gate (default `#insertBtn`) |
 | `data-city` / `data-type` / `data-cluster` / `data-gateway` | targeting + device identity |
 
-The gate fires `splashnet:gate-complete` when buttons unlock. Fail-safe: if
+The gate fires `splashnet:gate-complete` when buttons unlock — and for reward-eligible ads, gate completion itself redeems the WATCH engagement (voucher applied at zero; no second interstitial). Fail-safe: if
 the ad never loads, the countdown overlay still runs and unlocks on schedule
 — the paid (coin) path is never permanently blocked.
 

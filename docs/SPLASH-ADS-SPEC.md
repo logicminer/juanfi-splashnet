@@ -37,7 +37,7 @@ itself and converts to coins when the cap is reached.
 ```
 
 Rules:
-1. Ad serving, engagement, and reward redemption must **never block or slow**
+1. Ad serving, engagement, and reward redemption must **never block or slow** the paid path. The coin gate's countdown **is** a completed watch: reward-eligible ads grant free minutes exactly when the gate hits zero (chip text states the gate duration, not the generic 8 s).
    the paid path (fail-open architecture, BRD §2, extends here).
 2. On session expiry with daily cap remaining → re-serve an ad automatically.
 3. On expiry with cap reached → coin UI only, with the cap reset at midnight
