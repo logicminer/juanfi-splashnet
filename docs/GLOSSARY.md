@@ -10,7 +10,11 @@ unit sold to advertisers.
 cluster, gateway, slot hour, campaign (or fallback). Raw analytics stream;
 Module B's future input.
 
-**Advertiser** — Brand buying inventory. Owns campaigns.
+**Advertiser** — Brand buying inventory. Owns campaigns, creatives, and a deployment footprint (default cities) that pre-selects in campaign targeting.
+
+**Area** — Registry drill-down under a city (`DVO-AGDAO`, `CEB-MANDAUE`): districts/zones an advertiser can target beyond city level. Embeds declare their area (`data-area`); area campaigns serve only matching requests. Areas share the cache targeting slot with clusters under the `area:` namespace.
+
+**Deployment footprint** — An advertiser's default set of cities; the campaign form pre-selects them (★) so new campaigns start from the advertiser's usual geography.
 
 **Asia/Manila time (UTC+8)** — The platform's canonical wall-clock for all
 scheduling. PH has no DST, so a fixed +8 offset is exact. Server stores UTC;

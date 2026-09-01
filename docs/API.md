@@ -25,7 +25,9 @@ Params:
 |---|---|---|
 | `city` | yes | City code, e.g. `DVO` |
 | `type` | yes | `PISO_WIFI` \| `POSTPAID` |
-| `cluster` | no | Cluster ID for zone-level targeting |
+| `cluster` | no | Cluster ID for operator-zone targeting (takes precedence over `area`) |
+| `area` | no | Registry area code (e.g. `DVO-AGDAO`) for drill-down targeting |
+| `vendor` | no | `VND-XXXX` vendor attribution |
 | `gateway` | no | Router MAC/ID; device key for rewards & analytics (also accepts `mac`) |
 
 200 response:
@@ -134,6 +136,18 @@ Stored to S3-compatible store (MinIO local / R2 prod), URL on
 `cdn.nxph.site`. Video creatives are loaded to the bucket directly (`mc`)
 and referenced via `creative.videoUrl` — the 150 KB cap governs uploaded
 images, not bucket-loaded video.
+
+## Areas & advertiser footprint — [session]
+
+**Geo registry** — `GET /api/v1/areas` → `{cities: ["CEB","DVO","MNL"], areas:
+[{code, city, name}]}` · `POST` — [OPERATOR] adds `{code: "DVO-PAQUIAO",
+city: "DVO", name: "…"}`. Campaign targeting selects from this registry
+(cities + optional drill-down areas); area campaigns serve only requests
+declaring that area.
+
+**Advertiser footprint** — `PUT /api/v1/advertisers/{id}` accepts
+`defaultCities` (comma string/array). The campaign form pre-selects (★) the
+advertiser's footprint cities — the advertiser-cohesion default.
 
 ## Vendors (network operators) — [session]
 
