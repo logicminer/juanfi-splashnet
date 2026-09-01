@@ -65,6 +65,8 @@ an ad → free minutes; coins remain the paid tier. Spec: SPLASH-ADS-SPEC.md.
 
 **Interstitial (popup ad)** — Full-screen ad format (SDK `data-format="interstitial"`): image or video overlay on the portal with an always-present skip button and a 30-second hard auto-close — the user is never trapped. The juanfi-splashnet fork defaults to interstitial on the login page. Creatives stream from the CDN and never occupy router flash storage (hAP-class devices have as little as 16 MB with no SD slot).
 
+**Coin gate (gate interstitial)** — Mandatory countdown interstitial in front of a portal action (default: INSERT COIN): the button is disabled while a 5→1 countdown runs over an image ad, then unlocks (event `splashnet:gate-complete`). Guarantees advertiser exposure before the purchase action. Fail-safe: with no ad loaded the countdown still runs and unlocks — the paid path is never permanently blocked.
+
 **Hit stream** — Append-only `ad_hits` ledger of all serves. Feeds analytics
 now, Module B later.
 

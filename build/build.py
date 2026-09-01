@@ -13,7 +13,7 @@ templates and resolve any assertion failures as upstream drift.
 import argparse, pathlib, re, shutil, sys
 
 
-def patch_login(html: str, city: str, env_type: str, cluster: str, sdk_base: str, fmt: str = "interstitial") -> str:
+def patch_login(html: str, city: str, env_type: str, cluster: str, sdk_base: str, fmt: str = "interstitial", gate_seconds: int = 5, gate_selector: str = "#insertBtn") -> str:
     # RouterOS variables -> simulation-safe values. In production RouterOS
     # substitutes these itself; the SDK loader below assigns per-visitor
     # gateway ids in the sim.
@@ -51,11 +51,13 @@ def patch_login(html: str, city: str, env_type: str, cluster: str, sdk_base: str
 				<script>
 					(function () {{
 						var s = document.createElement("script");
-						s.src = "{sdk_base}/sdk/splash.js";
+						s.src = "{sdk_base}/sdk/splash.js?v=7";
 						s.async = true;
 						s.setAttribute("data-city", "{city}");
 						s.setAttribute("data-type", "{env_type}");{cluster_attr}
 						s.setAttribute("data-gateway", "SIM-GW-" + Math.random().toString(36).slice(2, 8).toUpperCase());						s.setAttribute("data-format", "{fmt}");
+						s.setAttribute("data-gate-seconds", "{gate_seconds}");
+						s.setAttribute("data-gate-selector", "{gate_selector}");
 						document.currentScript.parentNode.appendChild(s);
 					}})();
 				</script>
@@ -102,6 +104,8 @@ def main() -> None:
     ap.add_argument("--vendo", default="vendo.nxph.site", help="vendo host (no scheme)")
     ap.add_argument("--sdk-base", default="https://splash.nxph.site")
     ap.add_argument("--format", default="interstitial", choices=["inline", "interstitial"], help="ad display format (default: interstitial popup)")
+    ap.add_argument("--gate-seconds", type=int, default=5, help="mandatory countdown before gated buttons unlock (0 = off)")
+    ap.add_argument("--gate-selector", default="#insertBtn", help="CSS selector of buttons to gate behind the countdown")
     args = ap.parse_args()
 
     assert (args.src / "login.html").exists(), f"{args.src} does not look like a JuanFi template"
@@ -110,7 +114,7 @@ def main() -> None:
     shutil.copytree(args.src, args.dst)
 
     (args.dst / "login.html").write_text(
-        patch_login((args.dst / "login.html").read_text(), args.city, args.env_type, args.cluster, args.sdk_base, args.format)
+        patch_login((args.dst / "login.html").read_text(), args.city, args.env_type, args.cluster, args.sdk_base, args.format, args.gate_seconds, args.gate_selector)
     )
     (args.dst / "assets/js/core.js").write_text(patch_core((args.dst / "assets/js/core.js").read_text()))
     (args.dst / "assets/js/config.js").write_text(patch_config((args.dst / "assets/js/config.js").read_text(), args.vendo))

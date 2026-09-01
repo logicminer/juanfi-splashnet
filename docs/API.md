@@ -83,7 +83,13 @@ Body: `{ "voucher": "SN4F86B9E4", "mac": "AA:BB:CC:DD:EE:FF" }` (also accepts
 | Attribute | Values |
 |---|---|
 | `data-format` | `inline` (container) \| `interstitial` (full-screen popup with skip; 30 s hard auto-close) — fork default is interstitial |
+| `data-gate-seconds` | Mandatory countdown (e.g. `5`) before gated portal buttons unlock; countdown shows 5→1 over the ad. Fork default gates `#insertBtn` (INSERT COIN) for 5 s |
+| `data-gate-selector` | CSS selector of the element(s) to gate (default `#insertBtn`) |
 | `data-city` / `data-type` / `data-cluster` / `data-gateway` | targeting + device identity |
+
+The gate fires `splashnet:gate-complete` when buttons unlock. Fail-safe: if
+the ad never loads, the countdown overlay still runs and unlocks on schedule
+— the paid (coin) path is never permanently blocked.
 
 ---
 
