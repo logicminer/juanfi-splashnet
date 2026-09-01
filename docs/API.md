@@ -160,6 +160,26 @@ declaring that area.
 `defaultCities` (comma string/array). The campaign form pre-selects (★) the
 advertiser's footprint cities — the advertiser-cohesion default.
 
+## Sites (server-driven portal config) — [session]
+
+The "install once, never re-flash" layer: a portal embeds only
+`data-site="SITE-XXXX"`; everything else resolves at runtime from the site
+record. **Retargeting a gateway (city, cluster, area, vendor, format, coin
+gate) is a row edit — no template re-upload, no vendo re-flash.**
+
+### GET|POST `/api/v1/sites` — [VIEWER / OPERATOR]
+POST `{label, city (required), envType, clusterId, areaId, vendorId,
+gateSeconds (0–30), format}` → 201 `{site}` with the `SITE-XXXX` key.
+### PUT|DELETE `/api/v1/sites/{id}` — [OPERATOR]
+Partial updates — every field is retargetable live.
+
+### GET `/api/v1/sdk/config?site=SITE-XXXX` — [public]
+Minimal CORS-open runtime config consumed by the SDK on portal load
+(60 s cache). SDK precedence in site mode: **server config wins**; embedded
+`data-*` attributes are the fail-open fallback when this endpoint is
+unreachable. `/sdk/splash.js` itself is served `no-store` so SDK updates
+propagate from the server without operator action.
+
 ## Vendors (network operators) — [session]
 
 A **vendor** is a vendo/network operator registered with SplashNet — company

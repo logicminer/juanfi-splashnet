@@ -133,6 +133,8 @@ timeout with background retries; renders creatives, drives engagement, fires
 **SplashNet** — This platform: centralized, presentation-agnostic ad delivery
 and management for hybrid internet gateways.
 
+**Site key** — `SITE-XXXX` registry record + embed attribute powering server-driven portal config: the fork ships with only the key; city/type/cluster/area/vendor/format/gate resolve at runtime (`/api/v1/sdk/config`). Retargeting a gateway is a server-side row edit — no re-upload, no vendo re-flash ("install once").
+
 **Slot hour** — The Manila hour (0–23) a serve belongs to.
 
 **Vendor** — A network operator (vendo owner) registered with SplashNet: company profile, unique `VND-XXXX` ID, gateway count, clusters, status (PENDING/ACTIVE/SUSPENDED), and an API key for their gateway connector. The cohesion entity — ad serves (`vendor` param), media uploads, and connector calls are all attributed to the vendor that owns them. Distinct from an **advertiser** (the brand buying inventory).
