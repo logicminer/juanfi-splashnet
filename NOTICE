@@ -1,0 +1,19 @@
+This product includes software developed by Ivan Alayan and contributors
+(https://github.com/ivanalayan15/JuanFi), licensed under the Apache License,
+Version 2.0 (see LICENSE).
+
+MODIFICATIONS — made by SplashNet (https://splash.nxph.site), 2026:
+- login.html: injected SplashNet ad slot (#splashnet-ad container, splash.js
+  SDK loader with per-visitor gateway id, preconnect hint) and the
+  splashnet:reward listener that redeems watch-to-connect vouchers;
+  RouterOS variables replaced with simulation values; the voucher login
+  form-submit bridged to a connect bridge.
+- assets/js/core.js: vendo API URLs made protocol-relative
+  (location.protocol instead of hardcoded http://) — required on HTTPS portals.
+- assets/js/config.js: vendo host made configurable for cloud/docked vendo
+  deployments; member login / e-load toggles default off.
+- build/build.py: reproducible patch pipeline against upstream template 4.3.
+- sim/: Docker simulation (nginx portal + mock vendo coin-slot API) and
+  nginx /status handler for JuanFi's connectivity probe.
+
+Upstream snapshot: mikrotik-template/4.3, retrieved 2026-09-01.

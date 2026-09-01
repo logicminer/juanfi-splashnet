@@ -1,0 +1,14 @@
+services:
+  portal:
+    image: nginx:alpine
+    ports: ["8888:80"]
+    volumes:
+      - "./portal:/usr/share/nginx/html:ro"
+      - "./nginx.conf:/etc/nginx/conf.d/default.conf:ro"
+    depends_on: [vendo]
+
+  vendo:
+    image: node:20-alpine
+    command: node /app/server.js
+    ports: ["8081:80"]
+    volumes: ["./vendo:/app:ro"]
