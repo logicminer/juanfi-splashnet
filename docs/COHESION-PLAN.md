@@ -30,7 +30,8 @@ campaigns → advertiser. **Cohesion = no orphan data.**
 |---|---|---|
 | Portal (router) | End user | watch ad → free minutes; coins |
 | Vendo admin (coin box) | Operator | JuanFi settings (upstream); SplashNet income tile (optional overlay) |
-| Hosted income page (`/vendor`) | Operator | earnings, engagements, sites — zero hardware contact |
+| Hosted income page (`/vendor`) | Operator | earnings quick-view (API key; zero hardware contact) |
+| **Operator Console** (`/operator`) | Vendor login | income dashboard, self-serve site registration (PENDING→admin activates), connect-vendo wizard with copyable commands, connection test, API-key rotation |
 | **Advertiser Portal** (`/portal`) | Advertiser | campaigns (build/pause/top-up), creatives, availability grid, charts, billing, account |
 | **Admin Console** (`/`) | Staff (ADMIN/OPERATOR/VIEWER) | everything + approval gate + users + registries + metrics |
 | Demo sim (`demo`/`vendo.nxph.site`) | Us | full JuanFi parity demo — never production |
@@ -77,7 +78,7 @@ later cleanses the spine; nothing downstream needs to change.
 | 3 | **Module A** — iOS/Safari tracking bypass | commercial (₱45k) | iPhone engagement accuracy |
 | 4 | **Module B** — anti-fraud cleansing of the spine | commercial (₱40k) | scale (fine at pilot) |
 | 5 | Invoicing: generated invoices/payment integration on portal billing | us, later | advertiser self-serve payments |
-| 6 | Notifications: review-approved/ budget-exhausted emails to advertisers; payout reports to vendors | us, later | polish |
+| 6 | Notifications: review-approved/ budget-exhausted emails to advertisers; site-activated alerts + payout reports to operators | us, later | polish |
 | 7 | Cloud migration (LAUNCH-RUNBOOK Phase 2) | us | scale beyond one box |
 | 8 | Advertiser schedule *booking* (reserve slots at build time vs. current review flow) | us, later | higher self-serve autonomy |
 

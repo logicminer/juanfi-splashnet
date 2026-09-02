@@ -37,6 +37,7 @@ Phase 1 development. Distinct from "user".
 | **SplashNet admin** | SplashNet server | `splash.nxph.site` | Platform + operators with roles |
 | **JuanFi Manager** | Upstream commercial SaaS (NOT ours, not deployed here) | — | Upstream product |
 | **Advertiser Portal** (`/portal`) | SplashNet server | `splash.nxph.site/portal` | Advertisers (self-service) |
+| **Operator Console** (`/operator`) | SplashNet server | `splash.nxph.site/operator` | Vendors (login): income, self-serve site connect wizard, key rotation |
 
 **Rule of thumb:** if it's about coins, MikroTik credentials, or voucher
 generation → vendo admin. If it's about campaigns, budgets, sites, vendors,
