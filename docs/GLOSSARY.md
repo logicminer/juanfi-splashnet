@@ -36,6 +36,7 @@ Phase 1 development. Distinct from "user".
 | **JuanFi vendo admin** | Vendo coin box (NodeMCU SPIFFS) | `http://<vendo-ip>/admin/` (sim: `localhost:8081/admin/`) | Operator |
 | **SplashNet admin** | SplashNet server | `splash.nxph.site` | Platform + operators with roles |
 | **JuanFi Manager** | Upstream commercial SaaS (NOT ours, not deployed here) | — | Upstream product |
+| **Advertiser Portal** (`/portal`) | SplashNet server | `splash.nxph.site/portal` | Advertisers (self-service) |
 
 **Rule of thumb:** if it's about coins, MikroTik credentials, or voucher
 generation → vendo admin. If it's about campaigns, budgets, sites, vendors,
