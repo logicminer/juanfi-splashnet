@@ -82,6 +82,21 @@ later cleanses the spine; nothing downstream needs to change.
 | 7 | Cloud migration (LAUNCH-RUNBOOK Phase 2) | us | scale beyond one box |
 | 8 | Advertiser schedule *booking* (reserve slots at build time vs. current review flow) | us, later | higher self-serve autonomy |
 
+## 6.5 The visibility links (verified live 2026-09-03)
+
+Cohesion is bidirectional — both sides can see the other through the
+platform, without ever seeing each other's private data:
+
+| Direction | Signal | Surface |
+|---|---|---|
+| Advertiser → supply | "reach: N active gateways" per city/env on the availability grid (0-gateway cities warned explicitly) | Builder |
+| Operator → demand | "Running on your portals": campaign + advertiser + slots for ACTIVE campaigns matching their sites' city/env | Operator Console |
+| Operator → money | engagements/₱ credited in real time from the same ad_rewards rows | Operator Console + hosted page |
+
+The full trace is testable as one chain: advertiser books → site serves
+(with vendor attribution) → user engages → voucher granted → operator
+income credited → campaign visible in the operator's console.
+
 ## 7. Cohesion invariants (regression-test these)
 
 1. No orphan rows: every hit/reward/asset/site resolves to a registry entity.
