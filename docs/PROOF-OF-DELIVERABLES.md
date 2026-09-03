@@ -1,5 +1,9 @@
 # SplashNet — Proof of Deliverables
 
+> UI theme: light, status.openai.com-inspired (white cards, hairline
+> #ececf1 borders, near-black primaries, soft tinted status pills).
+> Screenshots in this pack reflect that theme; captured 2026-09-03.
+
 Reference: SplashNet BRD v4.2 (Phase 1 Base Build, ₱130,000 scope) plus the
 extensions commissioned during development. Every claim below is either
 machine-verified (QA evidence) or visually proven (screenshot evidence in
