@@ -42,8 +42,11 @@ the quoted commercial add-on.
 
 ## Part 2 — UI checklist with nav proof
 
-Every nav item of every surface, each captured as evidence. All URLs live
-on `splash.nxph.site` unless noted.
+Every nav item of every surface, each captured as evidence. **All proof URLs
+are production-hosted** (`splash.nxph.site`, `demo.nxph.site`,
+`vendo.nxph.site`) — no localhost references; every capture is gated by a
+render assertion (route + chrome + data markers) before the screenshot is
+accepted.
 
 ### A. Auth
 | Item | Nav path | Proof |
@@ -81,7 +84,7 @@ on `splash.nxph.site` unless noted.
 |---|---|---|
 | Hosted income quick-view (API key) | `/vendor` | ![vendor](screenshots/14-hosted-vendor-page.png) |
 | JuanFi portal: ad + 5s coin gate (user view) | `demo.nxph.site/login.html` | ![portal-ad](screenshots/15-demo-portal-ad-gate.png) |
-| JuanFi vendo admin (upstream, hash-verified) | `vendo:8081/system-config.html` | ![vendo](screenshots/16-vendo-admin.png) |
+| JuanFi vendo admin (upstream, hash-verified) | `https://vendo.nxph.site/system-config.html` | ![vendo](screenshots/16-vendo-admin.png) |
 
 ## Part 3 — Machine-verified evidence (non-UI)
 
