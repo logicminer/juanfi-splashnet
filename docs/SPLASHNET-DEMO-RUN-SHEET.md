@@ -197,7 +197,7 @@ Each of these is a Phase 2 module or a paid add-on in the BRD. Each is built, de
 
 > PREP · Switching accounts mid-demo is where multi-role walkthroughs fall apart. Have admin, advertiser, and operator open in three profiles before the client arrives.
 
-**Seed a demo campaign and an in-review campaign the night before**
+**✅ Done — 5 active campaigns + 1 in-review are seeded with realistic names and schedules**
 
 > PREP · You need a live campaign for the dashboard and scheduler demo, and a DRAFT for the approval-flow demo. Do not build them live.
 
@@ -209,7 +209,7 @@ Each of these is a Phase 2 module or a paid add-on in the BRD. Each is built, de
 
 > PREP · `curl splash.nxph.site/api/health` — should return `healthy`. If it doesn't, fix it before the demo, not during.
 
-**Have the QA matrix output ready to show**
+**✅ 40/40 passing — run before the demo and keep the terminal visible**
 
 > PREP · Run the 40-check matrix before the demo and keep the terminal output visible. "All 40 pass" is a stronger sentence than any screenshot.
 
